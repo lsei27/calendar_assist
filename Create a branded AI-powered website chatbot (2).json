@@ -1,0 +1,713 @@
+{
+  "name": "Create a branded AI-powered website chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 20
+      },
+      "id": "22c8d63b-ce3c-4aab-b3f6-4bae8c1b9ec5",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1216,
+        528
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "45403d5c-6e85-424f-b40b-c6214b57457b",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1632,
+        224
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-2024-08-06",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "id": "1111262a-1743-4bae-abf1-f69d2e1a580c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1120,
+        400
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "SuWTPX2cStfcsb80",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "={\n  \"subject\": \"Schůzka: {reason}\",\n  \"body\": {\n    \"contentType\": \"HTML\",\n    \"content\": \"Automaticky naplánovaná úvodní konzultace.<br><strong>Jméno:</strong> {name}<br><strong>Firma:</strong> {company}<br><strong>E-mail:</strong> {email}<br><br>Těším se na schůzku,<br>Lukáš Seifert\"\n  },\n  \"start\": {\n    \"dateTime\": \"{dateStartTime}\",\n    \"timeZone\": \"Europe/Prague\"\n  },\n  \"end\": {\n    \"dateTime\": \"{dateEndTime}\",\n    \"timeZone\": \"Europe/Prague\"\n  },\n  \"attendees\": [\n    {\n      \"emailAddress\": {\n        \"address\": \"{email}\",\n        \"name\": \"{name}\"\n      },\n      \"type\": \"required\"\n    }\n  ]\n}",
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/me/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOutlookOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subject\": \"Schůzka: {reason}\",\n  \"body\": {\n    \"contentType\": \"HTML\",\n    \"content\": \"Automaticky naplánovaná úvodní konzultace.<br><strong>Jméno:</strong> {name}<br><strong>Firma:</strong> {company}<br><strong>E-mail:</strong> {email}<br><br>Těším se na schůzku,<br>Lukáš Seifert\"\n  },\n  \"start\": {\n    \"dateTime\": \"{dateStartTime}\",\n    \"timeZone\": \"Europe/Prague\"\n  },\n  \"end\": {\n    \"dateTime\": \"{dateEndTime}\",\n    \"timeZone\": \"Europe/Prague\"\n  },\n  \"attendees\": [\n    {\n      \"emailAddress\": {\n        \"address\": \"{email}\",\n        \"name\": \"{name}\"\n      },\n      \"type\": \"required\"\n    }\n  ]\n}",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "dateStartTime",
+              "description": "The date and start time of the appointment in toISOString format with timezone for Europe/London",
+              "type": "string"
+            },
+            {
+              "name": "dateEndTime",
+              "description": "The date and end time of the appointment in toISOString format, always 30 minutes after the dateStartTime,  format with timezone for Europe/London",
+              "type": "string"
+            },
+            {
+              "name": "reason",
+              "description": "Detailed description of the meeting, will be sent to us and the customer",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "description": "The customers email address.",
+              "type": "string"
+            },
+            {
+              "name": "name",
+              "description": "The customers full name, must be second and last name",
+              "type": "string"
+            },
+            {
+              "name": "company",
+              "description": "The customers company name",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "df891547-c715-4dc6-bfcc-c0ac5cfcaf02",
+      "name": "Make Appointment",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1568,
+        480
+      ],
+      "typeVersion": 1.1,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "A4eGL2hrtjjpSFUv",
+          "name": "Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "44141c44-de49-4707-b287-24007c84ca21",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1920,
+        224
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0b6e779-0f7b-41f0-81f8-457f2b31ccfe",
+              "name": "response",
+              "type": "array",
+              "value": "={{ $json.freeTimeSlots.toJsonString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "795e1451-57d8-4563-8b86-5a75df2427b6",
+      "name": "varResponse",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2880,
+        112
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nastavení pracovní doby (Odstraněno \"Z\" - nyní se to řídí lokální zónou Graph API)\nconst businessHoursStart = \"08:00:00\";  \nconst businessHoursEnd = \"18:00:00\";    \n\nconst inputData = items[0].json.value || []; \n\n// Bezpečnější skládání data bez vlivu UTC posunu\nfunction getDateWithTime(dateString, time) {\n  const datePart = dateString.split(\"T\")[0]; \n  return new Date(`${datePart}T${time}`);\n}\n\n// Získání dne v týdnu (Odstraněno nespolehlivé getUTCDay)\nfunction getDayOfWeek(dateString) {\n  const daysOfWeek = [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"];\n  return daysOfWeek[new Date(dateString).getDay()]; \n}\n\nfunction addDays(date, days) {\n  const result = new Date(date);\n  result.setDate(result.getDate() + days);\n  return result;\n}\n\n// Bezpečné formátování na YYYY-MM-DD\nfunction formatDate(date) {\n  const d = new Date(date);\n  let month = '' + (d.getMonth() + 1);\n  let day = '' + d.getDate();\n  const year = d.getFullYear();\n  if (month.length < 2) month = '0' + month;\n  if (day.length < 2) day = '0' + day;\n  return [year, month, day].join('-');\n}\n\nconst defaultTimeZone = inputData.length > 0 && inputData[0].start && inputData[0].start.timeZone \n  ? inputData[0].start.timeZone \n  : \"Europe/Prague\";\n\nlet minDate = null;\nlet maxDate = null;\n\ninputData.forEach(event => {\n  if (event.start && event.start.dateTime) {\n    const eventDate = new Date(event.start.dateTime);\n    if (!minDate || eventDate < minDate) {\n      minDate = eventDate;\n    }\n    if (!maxDate || eventDate > maxDate) {\n      maxDate = eventDate;\n    }\n  }\n});\n\nif (minDate && maxDate) {\n  minDate = new Date(formatDate(minDate));\n  maxDate = new Date(formatDate(maxDate));\n}\n\nconst eventsByDate = {};\ninputData.forEach(event => {\n  if (event.start && event.start.dateTime) {\n    // Přímá extrakce data bez transformace do Date objektu (ochrana proti posunu dne)\n    const eventDate = event.start.dateTime.split(\"T\")[0];  \n    if (!eventsByDate[eventDate]) {\n      eventsByDate[eventDate] = [];\n    }\n    if (event.showAs === \"busy\") {\n      eventsByDate[eventDate].push({\n        start: new Date(event.start.dateTime),\n        end: new Date(event.end.dateTime),\n        timeZone: event.start.timeZone || defaultTimeZone\n      });\n    }\n  }\n});\n\nconst freeTimeSlots = [];\n\nif (minDate && maxDate) {\n  for (let currentDate = new Date(minDate); currentDate <= maxDate; currentDate = addDays(currentDate, 1)) {\n    const dateStr = formatDate(currentDate);\n    const busyEvents = eventsByDate[dateStr] || [];\n    \n    const businessStart = getDateWithTime(dateStr, businessHoursStart);\n    const businessEnd = getDateWithTime(dateStr, businessHoursEnd);\n    \n    if (busyEvents.length === 0) {\n      freeTimeSlots.push({\n        date: dateStr,\n        dayOfWeek: getDayOfWeek(dateStr),\n        freeStart: businessStart.toISOString(),\n        freeEnd: businessEnd.toISOString(),\n        timeZone: defaultTimeZone\n      });\n      continue; \n    }\n    \n    busyEvents.sort((a, b) => a.start - b.start);\n    \n    if (busyEvents[0].start > businessStart) {\n      freeTimeSlots.push({\n        date: dateStr,\n        dayOfWeek: getDayOfWeek(dateStr),\n        freeStart: businessStart.toISOString(),\n        freeEnd: busyEvents[0].start.toISOString(),\n        timeZone: busyEvents[0].timeZone\n      });\n    }\n    \n    for (let i = 0; i < busyEvents.length - 1; i++) {\n      if (busyEvents[i].end < busyEvents[i+1].start) {\n        freeTimeSlots.push({\n          date: dateStr,\n          dayOfWeek: getDayOfWeek(dateStr),\n          freeStart: busyEvents[i].end.toISOString(),\n          freeEnd: busyEvents[i+1].start.toISOString(),\n          timeZone: busyEvents[i].timeZone\n        });\n      }\n    }\n    \n    if (busyEvents[busyEvents.length - 1].end < businessEnd) {\n      freeTimeSlots.push({\n        date: dateStr,\n        dayOfWeek: getDayOfWeek(dateStr),\n        freeStart: busyEvents[busyEvents.length - 1].end.toISOString(),\n        freeEnd: businessEnd.toISOString(),\n        timeZone: busyEvents[busyEvents.length - 1].timeZone\n      });\n    }\n  }\n}\n\nreturn [{ json: { freeTimeSlots } }];"
+      },
+      "id": "4283635f-649c-4cc7-84b9-37524ddb6ce0",
+      "name": "freeTimeSlots",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2656,
+        112
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.microsoft.com/v1.0/me/calendarView",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftOutlookOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "startDateTime",
+              "value": "={{ new Date(new Date().setDate(new Date().getDate() + 2)).toISOString() }}"
+            },
+            {
+              "name": "endDateTime",
+              "value": "={{ new Date(new Date().setDate(new Date().getDate() + 16)).toISOString() }}"
+            },
+            {
+              "name": "$top",
+              "value": "50"
+            },
+            {
+              "name": "select",
+              "value": "start,end,categories,importance,isAllDay,recurrence,showAs,subject,type"
+            },
+            {
+              "name": "orderby",
+              "value": "start/dateTime asc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "outlook.timezone=\"Europe/Prague\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0786b561-449e-4c8f-bddb-c2bbd95dc197",
+      "name": "Get Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2432,
+        112
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "A4eGL2hrtjjpSFUv",
+          "name": "Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Get_availability",
+        "description": "Call this tool to check my calendar for availability before booking an appointment. This will result in all events for the next 2 weeks. Review all events and do not double book.",
+        "workflowId": {
+          "__rl": true,
+          "value": "dLNljvRvaGsrvROt",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/dLNljvRvaGsrvROt",
+          "cachedResultName": "Create a branded AI-powered website chatbot"
+        },
+        "fields": {
+          "values": [
+            {
+              "name": "route",
+              "stringValue": "availability"
+            }
+          ]
+        }
+      },
+      "id": "55c4233e-d395-4193-9a1d-1884faed6f1e",
+      "name": "Get Availability",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1520,
+        720
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "name": "Send_email",
+        "description": "Call this tool when the customer wants to speak to a human, or is not ready to make an appointment or if the customer has questions outside of your remit. The tool will send an email to our founder, <insert name>. Always send the customer's full name, company and email address along with a detailed message about the enquiry. You must always gather project details.",
+        "workflowId": {
+          "__rl": true,
+          "value": "dLNljvRvaGsrvROt",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/dLNljvRvaGsrvROt",
+          "cachedResultName": "Create a branded AI-powered website chatbot"
+        },
+        "fields": {
+          "values": [
+            {
+              "name": "route",
+              "stringValue": "message"
+            }
+          ]
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n\t\"email\": \"the customer's email\",\n    \"subject\": \"the subject of the email\",\n    \"message\": \"The customer's enquiry, must be a detailed description of their enquiry\",\n    \"name\": \"the customer's full name\",\n    \"company\": \"the customer company name\"\n}"
+      },
+      "id": "096d1962-31e6-4b3b-ba75-7956f70a6a32",
+      "name": "Send Message",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1376,
+        720
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "id": "285ddd31-5412-4d1c-ab80-d9960ec902bb",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        368,
+        240
+      ],
+      "webhookId": "f406671e-c954-4691-b39a-66c90aa2f103",
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "availability"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "availability"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "52fd844b-cc8d-471f-a56a-40e119b66194",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "message"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "032a26e9-6853-490d-991b-b2af2d845f58",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2128,
+        224
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d2ad084-9707-4979-84e4-297d1c21f725",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": false
+        }
+      },
+      "id": "c74905ce-4fd9-486c-abc4-b0b1d57d71a8",
+      "name": "varMessageResponse",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2656,
+        352
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "toRecipients": "user@example.com",
+        "subject": "={{ $('Execute Workflow Trigger').item.json.query.subject }}",
+        "bodyContent": "=<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>New Webchat Customer Enquiry</title>\n    <style type=\"text/css\">\n        /* Client-specific styles */\n        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }\n        img { -ms-interpolation-mode: bicubic; }\n\n        /* Reset styles */\n        body { margin: 0; padding: 0; }\n        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }\n        table { border-collapse: collapse !important; }\n        body { height: 100% !important; margin: 0; padding: 0; width: 100% !important; }\n\n        /* iOS BLUE LINKS */\n        a[x-apple-data-detectors] {\n            color: inherit !important;\n            text-decoration: none !important;\n            font-size: inherit !important;\n            font-family: inherit !important;\n            font-weight: inherit !important;\n            line-height: inherit !important;\n        }\n\n        /* Styles for Outlook and other email clients */\n        .ExternalClass { width: 100%; }\n        .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }\n        \n        /* Responsive styles */\n        @media screen and (max-width: 600px) {\n            .container { width: 100% !important; }\n            .content { padding: 15px !important; }\n            .field { padding: 10px !important; }\n            .header h1 { font-size: 20px !important; }\n            .header p { font-size: 12px !important; }\n        }\n    </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f4f4f4;\">\n    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n        <tr>\n            <td>\n                <table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"border-collapse: collapse; background-color: #ffffff;\">\n                    <tr>\n                        <td align=\"center\" bgcolor=\"#1a1a1a\" style=\"padding: 30px 0; background: linear-gradient(135deg, #1a1a1a 0%, #2d1f3d 100%);\">\n                            <h1 style=\"color: #ffffff; font-family: Arial, sans-serif; font-size: 24px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 1px;\">New Customer Enquiry</h1>\n                            <p style=\"color: #ffffff; font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; margin: 10px 0 0; opacity: 0.8;\">A potential client has reached out through our webchat</p>\n                        </td>\n                    </tr>\n                    <tr>\n                        <td style=\"padding: 20px;\">\n                            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n                                <tr>\n                                    <td style=\"padding: 15px; background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px;\">\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #6a1b9a; font-weight: bold; margin: 0 0 5px 0;\">FROM</p>\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; margin: 0;\">{{ $('Execute Workflow Trigger').item.json.query.name }}</p>\n                                    </td>\n                                </tr>\n                                <tr><td height=\"20\"></td></tr>\n                                <tr>\n                                    <td style=\"padding: 15px; background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px;\">\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #6a1b9a; font-weight: bold; margin: 0 0 5px 0;\">EMAIL</p>\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; margin: 0;\">{{ $('Execute Workflow Trigger').item.json.query.email }}</p>\n                                    </td>\n                                </tr>\n                                <tr><td height=\"20\"></td></tr>\n                                <tr>\n                                    <td style=\"padding: 15px; background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px;\">\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #6a1b9a; font-weight: bold; margin: 0 0 5px 0;\">COMPANY</p>\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; margin: 0;\">{{ $('Execute Workflow Trigger').item.json.query.company }}</p>\n                                    </td>\n                                </tr>\n                                <tr><td height=\"20\"></td></tr>\n                                <tr>\n                                    <td style=\"padding: 15px; background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px;\">\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #6a1b9a; font-weight: bold; margin: 0 0 5px 0;\">MESSAGE</p>\n                                        <p style=\"font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; margin: 0;\">{{ $('Execute Workflow Trigger').item.json.query.message }}</p>\n                                    </td>\n                                </tr>\n                            </table>\n                        </td>\n                    </tr>\n                    <tr>\n                        <td align=\"center\" bgcolor=\"#e90ebb\" style=\"padding: 20px; background: linear-gradient(135deg, #e90ebb 0%, #6a1b9a 100%);\">\n                            <p style=\"font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; color: #ffffff; margin: 0;\">This enquiry was automatically generated from our website's chat interface.</p>\n                        </td>\n                    </tr>\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>",
+        "additionalFields": {
+          "importance": "High",
+          "bodyContentType": "html"
+        }
+      },
+      "id": "04c5d43c-1629-4e11-a6bb-ae73369d7002",
+      "name": "Send Message1",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "position": [
+        2432,
+        352
+      ],
+      "webhookId": "d8acc2cb-fcba-4312-a743-e74abe76d071",
+      "typeVersion": 2,
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "A4eGL2hrtjjpSFUv",
+          "name": "Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Ensure these referance this workflow, replace placeholders",
+        "height": 205.34013605442183,
+        "width": 311.6936390497898
+      },
+      "id": "5a2636f1-47d3-4421-840b-56553bf14d82",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "modify business hours\nmodify timezones",
+        "height": 238,
+        "width": 468
+      },
+      "id": "a9fe05d4-6b86-4313-9f11-b20e3ce7db89",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=Jsi inteligentní osobní asistent Lukáše Seiferta, marketingového profesionála. Tvým úkolem je koordinovat schůzky a získávat relevantní informace od klientů.\n\nTvé hlavní úkoly:\n- Zjistit, kdy má klient čas, a nabídnout mu vhodné termíny. Ujisti se, že klient chápe, že fungujeme v čase SEČ (Praha).\n- Zkontrolovat kalendář a najít volné termíny. Dávej pozor na začátky a konce událostí a nikdy nevytvářej překrývající se schůzky (double booking). K dispozici máš události na následujících 14 dní.\n- Zeptat se klienta, co by chtěl na schůzce řešit, abychom se mohli připravit.\n- Získat jméno, název firmy a e-mail klienta pro vytvoření rezervace.\n- Konverzaci veď přátelsky, profesionálně a přirozeně v češtině. Zastupuješ Lukáše, takže mluv v množném čísle (\"rádi bychom\", \"podíváme se\") nebo za sebe jako za asistenta.\n- Jakmile zkontroluješ kalendář, zarezervuj schůzku pro časové pásmo Europe/Prague.\n- Pokud klient není připraven rezervovat schůzku, získej od něj detailní informace o jeho projektu a kontaktní údaje, abychom mu mohli odpovědět e-mailem. Vždy ale preferuj rezervaci schůzky, to je tvůj primární cíl.\n\nDůležitá pravidla pro plánování:\n- Všechny schůzky vyžadují alespoň 48 hodin předstih od tohoto aktuálního času: {{ new Date(new Date().toLocaleString(\"en-US\", {timeZone: \"Europe/Prague\"})).toISOString() }}. Toto je fixní pravidlo, ale komunikuj ho citlivě, pouze pokud je to nutné.\n- Pracovní doba je 8:00 - 18:00 od pondělí do pátku v časovém pásmu Europe/Prague (SEČ).\n- Nerezervuj schůzky na víkendy (sobotu a neděli).\n- Nerezervuj schůzky mimo volné bloky (freeTimeSlots).\n- Vždy kontroluj následujících 14 dní.\n- Všechny schůzky trvají 30 minut a úvodní konzultace je zdarma.\n- NIKDY nenabízej termín bez předchozí kontroly kalendáře.\n\nKRITICKÁ PRAVIDLA PRO NÁSTROJE (OCHRANA PŘED PÁDEM SYSTÉMU):\n1. ZÍSKÁNÍ DAT: Nikdy nevolej nástroj \"Make Appointment\", dokud od uživatele explicitně nezískáš jeho: Jméno, E-mail, Firmu a Důvod schůzky.\n2. BEZ UVOZOVEK: Při předávání dat do nástrojů NIKDY nepoužívej dvojité uvozovky (\") ani zalomení řádků uvnitř hodnot (zejména v polích 'reason', 'name' nebo 'company'). Vypisuj je jako prostý text bez uvozovek, jinak backendový JSON parser spadne!"
+        }
+      },
+      "id": "5dfda5c9-eeeb-421a-a80d-f42c94602080",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1216,
+        224
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "158a0b91-534d-4745-b10e-8a7c97050861",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6156ab7e-d411-46b9-ac44-52ad56ee563d",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        592,
+        240
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"output\": \"Hi, how can I help you today?\"\n}",
+        "options": {}
+      },
+      "id": "c94171a9-a71d-4f63-bef6-e90361c57abd",
+      "name": "Respond With Initial Message",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        896,
+        368
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "Customise the email template",
+        "height": 240,
+        "width": 260,
+        "color": 4
+      },
+      "id": "210cef85-6fbe-413e-88b6-b0fed76212ac",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        288
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "modify timezones",
+        "height": 238,
+        "width": 208,
+        "color": 6
+      },
+      "id": "17abc6bd-06c3-48e7-8380-e10024daa9f5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        384
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond With Initial Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get Events",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events": {
+      "main": [
+        [
+          {
+            "node": "freeTimeSlots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Message": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Message1": {
+      "main": [
+        [
+          {
+            "node": "varMessageResponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "freeTimeSlots": {
+      "main": [
+        [
+          {
+            "node": "varResponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make Appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "fe6daeab-4ebc-485c-be06-6ca7f3f8ddc8",
+  "meta": {
+    "templateId": "2786",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3b8da0048353332f4fd7a093476380a80444989de17551d5ea5ce156b75d2ef7"
+  },
+  "id": "dLNljvRvaGsrvROt",
+  "tags": []
+}

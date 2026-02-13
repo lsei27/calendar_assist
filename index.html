@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domluvte si schůzku | Lukáš Seifert</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="chat-container">
+    <header class="chat-header">
+      <div class="header-content">
+        <span class="header-badge">Asistent</span>
+        <h1>Domluvte si schůzku</h1>
+        <p>Rád vám pomohu najít vhodný termín. Pracovní doba: Po–Pá 8:00–18:00 (SEČ).</p>
+      </div>
+    </header>
+
+    <section class="chat-messages" id="messages" role="log" aria-live="polite">
+      <!-- Zprávy se vkládají přes JS -->
+    </section>
+
+    <form class="chat-form" id="chatForm" novalidate>
+      <div class="input-wrap">
+        <textarea
+          id="input"
+          name="message"
+          rows="1"
+          placeholder="Napište zprávu..."
+          maxlength="2000"
+          required
+          autocomplete="off"
+        ></textarea>
+        <button type="submit" id="submitBtn" aria-label="Odeslat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+          </svg>
+        </button>
+      </div>
+      <p class="input-hint">Úvodní konzultace zdarma, 30 minut</p>
+    </form>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
