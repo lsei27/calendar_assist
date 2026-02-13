@@ -7,7 +7,7 @@
   const config = window.CHAT_CONFIG || {};
   const webhookUrl = config.webhookUrl;
 
-  if (!webhookUrl || webhookUrl === "YOUR_N8N_WEBHOOK_URL") {
+  if (!webhookUrl) {
     const msg = document.getElementById("messages");
     if (msg) {
       const el = document.createElement("div");

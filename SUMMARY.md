@@ -7,8 +7,10 @@ Frontend pro n8n workflow „Create a branded AI-powered website chatbot“. Cha
 ## Architektura
 
 ```
-[Uživatel] → [index.html + chat.js] → [n8n Webhook] → [AI Agent + Outlook]
+[Uživatel] → [Vercel] → /api/chat (proxy) → [n8n Webhook] → [AI Agent + Outlook]
 ```
+
+Proxy `/api/chat` obchází CORS – frontend volá stejnou doménu.
 
 ## Soubory
 

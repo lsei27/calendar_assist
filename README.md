@@ -4,17 +4,14 @@ Moderní chatovací rozhraní pro n8n workflow, které domlouvá schůzky přes 
 
 ## Rychlý start
 
-1. **Nastavte webhook URL** v souboru `config.js`:
-   ```javascript
-   webhookUrl: "https://VASE-N8N-DOMENA/webhook/VAŠE-CESTA",
-   ```
-   URL získáte v n8n v uzlu **Chat Trigger** (pole **Chat URL**).
+1. **Zapněte Chat Trigger** v n8n workflow.
 
-2. **Zapněte Chat Trigger** v n8n workflow (pokud je vypnutý).
+2. **Vercel – nastavte proměnnou prostředí:**
+   - Vercel Dashboard → Project → Settings → Environment Variables
+   - Přidejte: `N8N_WEBHOOK_URL` = `https://n8n.couldbe.cz/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat`
+   - Redeploy projektu
 
-3. **CORS**: V n8n Chat Trigger → Options → Allowed Origin nastavte vaši doménu nebo `*` pro testování.
-
-4. Otevřete `index.html` v prohlížeči nebo nasaďte na Vercel.
+3. Frontend volá `/api/chat` (proxy na Vercelu) – žádný CORS.
 
 ## Deployment na Vercel
 
