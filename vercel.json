@@ -7,5 +7,8 @@
         { "key": "X-Frame-Options", "value": "DENY" }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/chat/index.js": { "memory": 128 }
+  }
 }

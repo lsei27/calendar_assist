@@ -11,7 +11,9 @@ Moderní chatovací rozhraní pro n8n workflow, které domlouvá schůzky přes 
    - Přidejte: `N8N_WEBHOOK_URL` = `https://n8n.couldbe.cz/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat`
    - Redeploy projektu
 
-3. Frontend volá `/api/chat` (proxy na Vercelu) – žádný CORS.
+3. **n8n – workflow musí být aktivní (published)** v n8n dashboardu.
+
+4. Frontend volá `/api/chat` (proxy na Vercelu) – žádný CORS.
 
 ## Deployment na Vercel
 
