@@ -112,5 +112,8 @@
     }
   });
 
-  sendMessage(null);
+  addMessage(
+    "Ahoj! Napište nám zprávu a zjistěte dostupnost. Rád vám pomohu najít vhodný termín pro úvodní konzultaci.",
+    "bot"
+  );
 })();
